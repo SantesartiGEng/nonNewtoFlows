@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this to aid in a publication, please use the following citation."
+type: article
+authors:
+  - given-names: Gianluca
+    family-names: Santesarti
+  - given-names: Michele
+    family-names: Marino
+  - given-names: Francesco
+    family-names: Viola
+  - given-names: Roberto
+    family-names: Verzicco
+  - given-names: Giuseppe
+    family-names: Vairo
+title: "A Quasi-Analytical Solution for "Carreau-Yasuda-like" Shear-thinning Fluids Flowing in Slightly Tapered Pipes"
+doi: 10.48550/arXiv.2502.14991
+journal: "arXiv preprint arXiv:2502.14991"
+year: 2025
