@@ -1,5 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this to aid in a publication, please use the following citation."
+preferred-citation: 
 type: article
 authors:
   - given-names: Gianluca
