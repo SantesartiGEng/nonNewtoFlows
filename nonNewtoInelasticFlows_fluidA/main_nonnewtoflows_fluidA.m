@@ -2,7 +2,7 @@
 % This is an open-source MATLAB code to analyse non-Newtonian inelastic fluids 
 % flowing in slightly tapered axisymmetric pipes.
 %
-% The flow analysis implemented regards the reference shear-thinning FLUID A characterised by two constant viscosity plateau described in: 
+% The flow analysis implemented regards the reference shear-thinning "FLUID A" characterised by two constant viscosity plateau connected by a shear-thinning branch described in: 
 % Santesarti, G., Marino, M., Viola, F., Verzicco, R., & Vairo, G. (2025). A Quasi-Analytical Solution for "Carreau-Yasuda-like" Shear-thinning Fluids Flowing in Slightly Tapered Pipes. arXiv preprint 2502.14991 at https://doi.org/10.48550/arXiv.2502.14991
 %
 % If you use this code, please cite the reference article mentioned above.
@@ -106,7 +106,7 @@ gradpNewto_muInf(:) =  1./( R(:).^4 );
 gradpNewto_muInf = -gradpNewto_muInf*(Q*8*muInf)/pi; % pressure gradient [Pa/mm]
 
 %%  TPL dp/dz COMPUTATION SECTION
-gradpTPL = funct_gradpTPL(gradpNewto_mu0, gradpPowlaw, gradpNewto_muInf, Q, R, mu0, tau0, K, n, muInf, tauInf);
+gradpTPL = funct_gradpTPL_fluidA(gradpNewto_mu0, gradpPowlaw, gradpNewto_muInf, Q, R, mu0, tau0, K, n, muInf, tauInf);
 pTPL = funct_pTPL(gradpTPL, L, nodes_axis);
 
 %%
@@ -116,19 +116,16 @@ R0TPL = funct_R0_axis(R, gradpTPL, tau0);
 %%%--- RInf radius percentage of power law region ending
 RInfTPL = funct_RInf_axis(R, gradpTPL, tauInf);
 
-%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%-------------------FIGURE 1.3 -R0 SA-G CASE----------------%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-xmin = 0; xmax = L*1; % z in [mm]
+%% PLOT R0 RInf
+xmin = 0; xmax = L; % z [mm]
 ymin = 0;
 
 figure('OuterPosition', [500 200 600 500])
 
 
-P1 = plot(z(:), R0TPL(:),'k -','LineWidth',1); %z in [mm] and R0 in [%]
+P1 = plot(z(:), R0TPL(:),'k -','LineWidth',1); %z [mm] and R0 [%]
 hold on
-P2 = plot(z(:), RInfTPL(:),'k -.','LineWidth',1); %z in [mm] and R0 in [%]
+P2 = plot(z(:), RInfTPL(:),'k -.','LineWidth',1); %z [mm] and R0 [%]
 
 xlim([xmin xmax])
 ylim([ymin 105])
@@ -162,7 +159,7 @@ for i=1:size(muTPL,1)
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%------------------FIGURE-VISCOSITY--SRB+TPL------------------------%%%
+%%%------------------FIGURE-VISCOSITY--SRB+TPL----------------%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 marker_viscTPL = [gamma0_TPL mu0_TPL; gammaInf_TPL muInf_TPL];
@@ -206,9 +203,8 @@ grid on
 box on
 
 %% PLOT - AXIS - AXIAL PRESSURE
-%%% axial pressure
 figure('OuterPosition', [500 200 600 500])
-P1 = plot(z(:), pTPL(:).*1e-3,'k -','LineWidth',0.8); % z in [mm]
+P1 = plot(z(:), pTPL(:).*1e-3,'k -','LineWidth',0.8); % z [mm] p [kPa]
 
 ax = gca; ax.FontSize = 16; 
 xlabel('$z$ [mm] ','Interpreter','latex','FontSize',20);
@@ -217,8 +213,8 @@ legend([P1],{'QA (TPL)'},'Location','northeast','Interpreter','latex','FontSize'
 
 title('Axis - Pressure','Interpreter','latex')
 grid on
-xmin = 0; xmax = L; % z in [mm]
-ymin = 0; ymax = 200; % z in [kPa]
+xmin = 0; xmax = L; % z [mm]
+ymin = 0; ymax = 200; % p [kPa]
 xlim([xmin xmax])
 ylim([ymin ymax])
 
@@ -227,13 +223,13 @@ AxialVelTPL = funct_AxialVel_TPL_HSR(z, gradpTPL, R, R0TPL, RInfTPL, mu0, K, n, 
 
 figure('OuterPosition', [500 200 600 500])
 
-P1 = plot(z(:), AxialVelTPL(:),'k -','LineWidth',1); % z in [mm] vz [mm/s]
+P1 = plot(z(:), AxialVelTPL(:),'k -','LineWidth',1); % z [mm] vz [mm/s]
 
 ax = gca; ax.FontSize = 16; 
 xlabel('$z$ [mm] ','Interpreter','latex','FontSize',20);
 ylabel('$v_z$ [mm/s] ','Interpreter','latex','FontSize',20);
 legend([P1],{'QA (TPL)'},'Location','northwest','Interpreter','latex','FontSize',12);
-xmin = 0; xmax = L; % z in [mm]
+xmin = 0; xmax = L; % z [mm]
 xlim([xmin xmax])
 
 title('Axis - Axial velocity','Interpreter','latex')
@@ -241,18 +237,18 @@ grid on
 
 %% OUTLET - AXIAL VELOCITY
 
-r_Outlet = linspace(0, R(1,end), nodes_radius);  % [mm]
+r_Outlet = linspace(0, R(1,end), nodes_radius);  % r [mm]
 AxVelTPL_Outlet = funct_AxVelTPL_radius_HSR(gradpTPL(1,end), r_Outlet, R0TPL(1,end), RInfTPL(1,end), mu0, K, n, muInf); % [mm/s]
 
 figure('OuterPosition', [500 200 600 500]) 
 
-P1 = plot(r_Outlet(:)*1e3, AxVelTPL_Outlet(:),'k -','LineWidth',0.8); % r in [\mum] vz in [mm/s] 
+P1 = plot(r_Outlet(:)*1e3, AxVelTPL_Outlet(:),'k -','LineWidth',0.8); % r [\mum] vz [mm/s] 
 
 ax = gca; ax.FontSize = 16;
 xlabel('$r$ [$\mu$m]','Interpreter','latex','FontSize',20);
 ylabel('$v_z$ [mm/s]','Interpreter','latex','FontSize',20);
 legend([P1],{'QA (TPL)'},'Location','northeast','Interpreter','latex','FontSize',12);
-xlim([0 R(1,end)*1e3]) % r in [\mum]
+xlim([0 R(1,end)*1e3]) % r [\mum]
 ylim([0 40])
 
 title('Outlet - Axial velocity','Interpreter','latex')
@@ -266,7 +262,7 @@ index_z_axis = size(z,2); %outlet section
 
 figure('OuterPosition', [500 200 600 500]) 
 
-P1 = plot(radiusvect_outlet(:)*1e3, radvel_outlet(:),'k -','LineWidth',0.8);  % r in [\mum] v in [mm/s] 
+P1 = plot(radiusvect_outlet(:)*1e3, radvel_outlet(:),'k -','LineWidth',0.8);  % r [\mum] v in [mm/s] 
 
 ax = gca; ax.FontSize = 16;
 xlabel('$r$ [$\mu$m]','interpreter','latex','fontsize',20);
